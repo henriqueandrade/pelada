@@ -1,9 +1,9 @@
 package com.quail.timefeito.controller;
 
-import com.mongodb.MongoNodeIsRecoveringException;
 import com.quail.timefeito.model.Peladeiro;
 import com.quail.timefeito.model.PeladeiroEvent;
 import com.quail.timefeito.repository.PeladeiroRepository;
+import com.quail.timefeito.service.PeladeiroServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,53 +17,41 @@ import java.time.Duration;
 @RequestMapping("/peladeiro")
 public class PeladeiroController {
 
-    private PeladeiroRepository repository;
-    public PeladeiroController(PeladeiroRepository repository){this.repository = repository;}
+    private PeladeiroServiceImpl service;
+    //private PeladeiroRepository repository;
+    //public PeladeiroController(PeladeiroRepository repository){this.repository = repository;}
+
+    public PeladeiroController(PeladeiroServiceImpl service){this.service = service;}
 
     @GetMapping
-    public Flux<Peladeiro> getAll() {return repository.findAll();}
+    public Flux<Peladeiro> getAll() {return service.getAll();}
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Peladeiro>> getOne(@PathVariable String id) {
-        return repository.findById(id)
-                .map(peladeiro -> ResponseEntity.ok(peladeiro))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+        return service.getOne(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Peladeiro> save(@RequestBody Peladeiro peladeiro) {
-        return repository.save(peladeiro);
+        return service.save(peladeiro);
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<Peladeiro>> update(@PathVariable(value="id") String id,
                                                   @RequestBody Peladeiro peladeiro) {
-        return repository.findById(id)
-                .flatMap(peladeiroExistente -> {
-            peladeiroExistente.setNome(peladeiro.getNome());
-            peladeiroExistente.setNivel(peladeiro.getNivel());
-            peladeiroExistente.setPosicao(peladeiro.getPosicao());
-            return repository.save(peladeiroExistente);
-        })
-                .map(updatePeladeiro -> ResponseEntity.ok(updatePeladeiro))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+        return service.update(id, peladeiro);
     }
 
     @DeleteMapping("{id}")
     public Mono<ResponseEntity<Void>> delete(@PathVariable(value = "id") String id) {
-        return repository.findById(id)
-                .flatMap(peladeiroExistente ->
-                        repository.delete(peladeiroExistente)
-                        .then(Mono.just(ResponseEntity.ok().<Void>build()))
-                        )
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+        return service.delete(id);
 
     }
 
     @DeleteMapping
     public Mono<Void> deleteAll() {
-        return repository.deleteAll();
+        return service.deleteAll();
     }
 
     @GetMapping(value="/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
