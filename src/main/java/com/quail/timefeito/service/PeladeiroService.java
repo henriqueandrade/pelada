@@ -15,5 +15,5 @@ public interface PeladeiroService {
     Mono<ResponseEntity<Peladeiro>> update(String id, Peladeiro peladeiro);
     Mono<ResponseEntity<Void>> delete(String id);
     Mono<Void> deleteAll();
-    Flux<SelecaoPeladeiros> getSelecao(Integer quantidadeSelecoes,List<String> peladeiroIds);
+    Flux<SelecaoPeladeiros> getSelecoes(Integer quantidadeSelecoes, List<String> peladeiroIds);
 }

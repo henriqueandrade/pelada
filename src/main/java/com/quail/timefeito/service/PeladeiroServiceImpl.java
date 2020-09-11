@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -71,12 +74,23 @@ public class PeladeiroServiceImpl implements PeladeiroService{
     }
 
     @Override
-    public Flux<SelecaoPeladeiros> getSelecao(Integer quantidadeSelecoes, List<String> peladeiroIds) {
+    public Flux<SelecaoPeladeiros> getSelecoes(Integer peladeiroPorSelecao, List<String> peladeiroIds) {
         int media;
         Flux<Peladeiro> peladeiros = repository.findAll();
         List<Peladeiro> selecionados = peladeiros.toStream().filter(peladeiro -> peladeiroIds.contains(peladeiro.getId())).collect(Collectors.toList());
         media = selecionados.stream().flatMapToInt(peladeiro -> IntStream.of(peladeiro.getNivel())).sum();
 
+        Integer timeId = 1;
+
+        Random rand = new Random ();
+        List<SelecaoPeladeiros> times = new ArrayList<SelecaoPeladeiros> ();
+        SelecaoPeladeiros selecao;
+        List<Peladeiro> jogadoresDoTime = new ArrayList<>();
+
+        while(times.size() > peladeiroPorSelecao){
+            selecao = new SelecaoPeladeiros ();
+            jogadoresDoTime.add(selecionados.get(rand.nextInt(selecionados.size())));
+        }
 
         return null;
     }
